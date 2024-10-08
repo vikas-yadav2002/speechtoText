@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech to Text</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    #output {
+      width: 80%;
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Speech to Text</h1>
+  
+  <button id="listenBtn">Listen</button>
+  <button id="stopBtn" disabled>Stop</button>
+  <button id="resetBtn" disabled>reset</button>
+  
+  <textarea id="output" placeholder="Your speech will appear here..." readonly></textarea>
+
+  <script>
+    const listenBtn = document.getElementById('listenBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const output = document.getElementById('output');
+    const reset = document.getElementById('resetBtn');
+
+    // Check if the browser supports speech recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+
+      recognition.continuous = true; // Keep listening until stopped manually
+      recognition.interimResults = false; // Only show final results
+      recognition.lang = 'en-US'; // Language for recognition
+
+      listenBtn.addEventListener('click', () => {
+        recognition.start(); // Start listening
+        listenBtn.disabled = true;
+        stopBtn.disabled = false;
+        listenBtn.textContent = "Listening..."; // Update button text
+      });
+
+      stopBtn.addEventListener('click', () => {
+        recognition.stop(); // Stop listening when Stop button is pressed
+        listenBtn.disabled = false;
+        stopBtn.disabled = true;
+        reset.disabled = false;
+        listenBtn.textContent = "Listen"; // Reset button text
+      });
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[event.resultIndex][0].transcript; // Get the spoken text
+        output.value += transcript + '\n'; // Append the recognized text to the textarea
+        
+      };
+      reset.addEventListener('click' , ()=>{
+        output.value = '';
+        reset.disabled = true;s
+      })
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error detected: ', event.error);
+        listenBtn.disabled = false;
+        stopBtn.disabled = true;
+        listenBtn.textContent = "Listen"; // Reset button text in case of error
+      };
+    } else {
+      alert("Sorry, your browser doesn't support speech recognition.");
+    }
+  </script>
+
+</body>
+</html>
